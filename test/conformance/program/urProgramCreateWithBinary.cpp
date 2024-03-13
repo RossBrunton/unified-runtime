@@ -94,3 +94,11 @@ TEST_P(urProgramCreateWithBinaryTest, InvalidSizePropertyCount) {
                                                binary.data(), &properties,
                                                &binary_program));
 }
+
+TEST_P(urProgramCreateWithBinaryTest, BuildInvalidProgramBinary) {
+    ur_program_handle_t program = nullptr;
+    uint8_t binary[] = {0, 1, 2, 3, 4};
+    ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_BINARY,
+                     urProgramCreateWithBinary(context, device, 5, binary,
+                                               nullptr, &program));
+}

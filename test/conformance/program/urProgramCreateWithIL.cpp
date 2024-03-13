@@ -73,3 +73,11 @@ TEST_P(urProgramCreateWithILTest, InvalidNullPointerProgram) {
                                            il_binary->size(), nullptr,
                                            nullptr));
 }
+
+TEST_P(urProgramCreateWithILTest, BuildInvalidProgram) {
+    ur_program_handle_t program = nullptr;
+    char binary[] = {0, 1, 2, 3, 4};
+    ASSERT_EQ_RESULT(
+        UR_RESULT_ERROR_INVALID_BINARY,
+        urProgramCreateWithIL(context, &binary, 5, nullptr, &program));
+}
