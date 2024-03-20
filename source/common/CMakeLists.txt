@@ -29,14 +29,6 @@ if (NOT DEFINED UMF_TAG)
     set(UMF_TAG 9bf7a0dc4dff76844e10edbb5c6e9d917536ef6d)
 endif()
 
-message(STATUS "Will fetch Unified Memory Framework from ${UMF_REPO}")
-
-include(FetchContent)
-FetchContent_Declare(unified-memory-framework
-    GIT_REPOSITORY    ${UMF_REPO}
-    GIT_TAG           ${UMF_TAG}
-)
-
 if(UR_BUILD_TESTS)
     set(UMF_BUILD_TESTS ON CACHE INTERNAL "Build UMF tests")
 else()
@@ -45,8 +37,20 @@ endif()
 set(UMF_BUILD_LIBUMF_POOL_DISJOINT ON CACHE INTERNAL "Build Disjoint Pool")
 set(UMF_BUILD_OS_MEMORY_PROVIDER OFF CACHE INTERNAL "Build OS Provider")
 
-FetchContent_MakeAvailable(unified-memory-framework)
-FetchContent_GetProperties(unified-memory-framework)
+if (NOT DEFINED unified-memory-framework_SOURCE_DIR)
+    message(STATUS "Will fetch Unified Memory Framework from ${UMF_REPO}")
+    include(FetchContent)
+    FetchContent_Declare(unified-memory-framework
+        GIT_REPOSITORY    ${UMF_REPO}
+        GIT_TAG           ${UMF_TAG}
+    )
+    FetchContent_MakeAvailable(unified-memory-framework)
+    FetchContent_GetProperties(unified-memory-framework)
+else()
+    add_subdirectory(
+    ${unified-memory-framework_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/unified-memory-framework)
+endif()
 
 target_link_libraries(ur_common PUBLIC
     unified-memory-framework::umf
