@@ -3,7 +3,7 @@
 # See LICENSE.TXT
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_library (ur_mock_headers SHARED
+add_ur_library (ur_mock_headers SHARED
     "${CMAKE_CURRENT_SOURCE_DIR}/ur_mock_helpers.cpp")
 
 target_include_directories(ur_mock_headers

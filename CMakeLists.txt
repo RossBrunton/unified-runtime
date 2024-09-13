@@ -60,6 +60,8 @@ option(UR_BUILD_XPTI_LIBS "Build the XPTI libraries when tracing is enabled" ON)
 option(UR_STATIC_LOADER "Build loader as a static library" OFF)
 option(UR_FORCE_LIBSTDCXX "Force use of libstdc++ in a build using libc++ on Linux" OFF)
 option(UR_ENABLE_LATENCY_HISTOGRAM "Enable latncy histogram" OFF)
+option(UR_WEXTRA "Enable -Wextra on all build targets" OFF)
+option(UR_HARDEN "Enable additional hardening flags" ON)
 set(UR_DPCXX "" CACHE FILEPATH "Path of the DPC++ compiler executable")
 set(UR_DPCXX_BUILD_FLAGS "" CACHE STRING "Build flags to pass to DPC++ when compiling device programs")
 set(UR_SYCL_LIBRARY_DIR "" CACHE PATH
@@ -160,6 +162,8 @@ if(UR_ENABLE_TRACING)
         set_target_properties(xptifw PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
         )
+        add_ur_target_compile_options(xptifw)
+        add_ur_target_link_options(xptifw)
 
         if (UR_STATIC_LOADER)
             install(TARGETS xpti xptifw
@@ -267,6 +271,14 @@ add_custom_target(verify-licenses
         "${PROJECT_SOURCE_DIR}/scripts/verify_license.py"
         "--files" ${format_src} ${license_src}
     COMMENT "Verify all files contain a license."
+)
+
+# Add hardening check
+list(FILTER license_src EXCLUDE REGEX "registry.yml")
+add_custom_target(verify-hardening
+    COMMAND "${PROJECT_SOURCE_DIR}/scripts/check-hardening.sh"
+        ${CMAKE_BINARY_DIR}
+    COMMENT "Check hardening settings on built binaries and libraries"
 )
 
 # Add code formatter target

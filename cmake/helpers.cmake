@@ -42,6 +42,10 @@ endfunction()
 
 include(CheckCXXCompilerFlag)
 
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+    set(OLD_GCC_VERSION ON)
+endif()
+
 macro(add_sanitizer_flag flag)
     set(SAVED_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
     set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES} -fsanitize=${flag}")
@@ -59,18 +63,33 @@ endmacro()
 
 function(add_ur_target_compile_options name)
     if(NOT MSVC)
+        target_compile_definitions(${name} PRIVATE -D_FORTIFY_SOURCE=2)
         target_compile_options(${name} PRIVATE
             -fPIC
             -Wall
             -Wpedantic
             -Wempty-body
-            -Wunused-parameter
             $<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>
             $<$<CXX_COMPILER_ID:Clang,AppleClang>:-fcolor-diagnostics>
         )
+        if (UR_HARDEN)
+            target_compile_options(${name} PRIVATE
+                -fstack-protector
+                -fstack-clash-protection
+                -fcf-protection=full
+                -fstack-protector-strong
+                -fvisibility=hidden # Required for -fsanitize=cfi
+                # -fsanitize=cfi requires -flto, which breaks a lot of things
+                # See: https://github.com/oneapi-src/unified-runtime/issues/2120
+                # -flto
+                # $<$<CXX_COMPILER_ID:Clang,AppleClang>:-fsanitize=cfi>
+            )
+        endif()
         if (CMAKE_BUILD_TYPE STREQUAL "Release")
-            target_compile_definitions(${name} PRIVATE -D_FORTIFY_SOURCE=2)
-            target_compile_options(${name} PRIVATE -fvisibility=hidden)
+            target_compile_options(${name} PRIVATE
+                -Werror
+                -fvisibility=hidden
+            )
         endif()
         if(UR_DEVELOPER_MODE)
             target_compile_options(${name} PRIVATE
@@ -78,6 +97,20 @@ function(add_ur_target_compile_options name)
                 -fno-omit-frame-pointer
                 -fstack-protector-strong
             )
+        endif()
+        if(UR_WEXTRA)
+            target_compile_options(${name} PRIVATE
+                -Wextra
+                # Note: LLVM libraries don't compile successfully with -Wunused-parameter
+                -Wunused-parameter
+                -Wformat
+                -Wformat-security
+            )
+            if (CMAKE_BUILD_TYPE STREQUAL "Release")
+                target_compile_options(${name} PRIVATE
+                    -Werror=format-security
+                )
+            endif()
         endif()
     elseif(MSVC)
         target_compile_options(${name} PRIVATE
@@ -102,7 +135,13 @@ endfunction()
 function(add_ur_target_link_options name)
     if(NOT MSVC)
         if (NOT APPLE)
-            target_link_options(${name} PRIVATE "LINKER:-z,relro,-z,now")
+            target_link_options(${name} PRIVATE "LINKER:-z,relro,-z,now,-z,noexecstack")
+            if (CMAKE_BUILD_TYPE STREQUAL "Release")
+                target_link_options(${name} PRIVATE
+                    -Werror
+                    $<$<CXX_COMPILER_ID:GNU>:-pie>
+                )
+            endif()
         endif()
     elseif(MSVC)
         target_link_options(${name} PRIVATE

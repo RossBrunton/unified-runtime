@@ -155,6 +155,17 @@ if(UR_BUILD_ADAPTER_L0)
         )
     endif()
 
+    # Ensure UR flags are propogated to level zero
+    # TODO: https://github.com/oneapi-src/unified-runtime/issues/2105
+    #foreach(TARGET IN ITEMS ze_loader ze_validation_layer ze_tracing_layer ze_null)
+    #    add_ur_target_compile_options(${TARGET})
+    #    add_ur_target_link_options(${TARGET})
+    #    target_compile_options(${TARGET} PRIVATE
+    #        $<$<IN_LIST:$<CXX_COMPILER_ID>,GNU;Clang;Intel;IntelLLVM>:-Wno-error -Wno-unused-parameter>
+    #        $<$<CXX_COMPILER_ID:MSVC>:/WX- /UUNICODE>
+    #    )
+    #endforeach()
+
     if(NOT WIN32)
         target_sources(ur_adapter_level_zero
             PRIVATE
