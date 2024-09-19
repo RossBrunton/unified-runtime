@@ -67,6 +67,7 @@ UUR_TEST_SUITE_P(urEnqueueMemBufferFillTest, testing::ValuesIn(test_cases),
                  uur::printFillTestString<urEnqueueMemBufferFillTest>);
 
 TEST_P(urEnqueueMemBufferFillTest, Success) {
+    UUR_SKIP_ON_BACKEND(UR_PLATFORM_BACKEND_LEVEL_ZERO, "Crashes: https://github.com/oneapi-src/unified-runtime/issues/2103");
     ASSERT_SUCCESS(urEnqueueMemBufferFill(queue, buffer, pattern.data(),
                                           pattern_size, 0, size, 0, nullptr,
                                           nullptr));
@@ -76,6 +77,7 @@ TEST_P(urEnqueueMemBufferFillTest, Success) {
     verifyData(output, size);
 }
 TEST_P(urEnqueueMemBufferFillTest, SuccessPartialFill) {
+    UUR_SKIP_ON_BACKEND(UR_PLATFORM_BACKEND_LEVEL_ZERO, "Crashes: https://github.com/oneapi-src/unified-runtime/issues/2103");
     if (size == 1) {
         // Can't partially fill one byte
         GTEST_SKIP();
@@ -101,6 +103,7 @@ TEST_P(urEnqueueMemBufferFillTest, SuccessPartialFill) {
 }
 
 TEST_P(urEnqueueMemBufferFillTest, SuccessOffset) {
+    UUR_SKIP_ON_BACKEND(UR_PLATFORM_BACKEND_LEVEL_ZERO, "Crashes: https://github.com/oneapi-src/unified-runtime/issues/2103");
     if (size == 1) {
         // No room for an offset
         GTEST_SKIP();
