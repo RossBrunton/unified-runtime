@@ -12,6 +12,7 @@
 
 #include "common.hpp"
 #include "usm.hpp"
+#include "adapter.hpp"
 
 template <class T>
 void AllocDeleterCallback(cl_event event, cl_int, void *pUserData) {
@@ -117,7 +118,7 @@ urUSMHostAlloc(ur_context_handle_t hContext, const ur_usm_desc_t *pUSMDesc,
   clHostMemAllocINTEL_fn FuncPtr = nullptr;
   cl_context CLContext = cl_adapter::cast<cl_context>(hContext);
   if (auto UrResult = cl_ext::getExtFuncFromContext<clHostMemAllocINTEL_fn>(
-          CLContext, cl_ext::ExtFuncPtrCache->clHostMemAllocINTELCache,
+          CLContext, ur::cl::getExtFnPtrCache().clHostMemAllocINTELCache,
           cl_ext::HostMemAllocName, &FuncPtr)) {
     return UrResult;
   }
@@ -165,7 +166,7 @@ urUSMDeviceAlloc(ur_context_handle_t hContext, ur_device_handle_t hDevice,
   clDeviceMemAllocINTEL_fn FuncPtr = nullptr;
   cl_context CLContext = cl_adapter::cast<cl_context>(hContext);
   if (auto UrResult = cl_ext::getExtFuncFromContext<clDeviceMemAllocINTEL_fn>(
-          CLContext, cl_ext::ExtFuncPtrCache->clDeviceMemAllocINTELCache,
+          CLContext, ur::cl::getExtFnPtrCache().clDeviceMemAllocINTELCache,
           cl_ext::DeviceMemAllocName, &FuncPtr)) {
     return UrResult;
   }
@@ -213,7 +214,7 @@ urUSMSharedAlloc(ur_context_handle_t hContext, ur_device_handle_t hDevice,
   clSharedMemAllocINTEL_fn FuncPtr = nullptr;
   cl_context CLContext = cl_adapter::cast<cl_context>(hContext);
   if (auto UrResult = cl_ext::getExtFuncFromContext<clSharedMemAllocINTEL_fn>(
-          CLContext, cl_ext::ExtFuncPtrCache->clSharedMemAllocINTELCache,
+          CLContext, ur::cl::getExtFnPtrCache().clSharedMemAllocINTELCache,
           cl_ext::SharedMemAllocName, &FuncPtr)) {
     return UrResult;
   }
@@ -247,7 +248,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMFree(ur_context_handle_t hContext,
   cl_context CLContext = cl_adapter::cast<cl_context>(hContext);
   ur_result_t RetVal = UR_RESULT_ERROR_INVALID_OPERATION;
   RetVal = cl_ext::getExtFuncFromContext<clMemBlockingFreeINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clMemBlockingFreeINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clMemBlockingFreeINTELCache,
       cl_ext::MemBlockingFreeName, &FuncPtr);
 
   if (FuncPtr) {
@@ -274,7 +275,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMFill(
     clEnqueueMemFillINTEL_fn EnqueueMemFill = nullptr;
     UR_RETURN_ON_FAILURE(
         cl_ext::getExtFuncFromContext<clEnqueueMemFillINTEL_fn>(
-            CLContext, cl_ext::ExtFuncPtrCache->clEnqueueMemFillINTELCache,
+            CLContext, ur::cl::getExtFnPtrCache().clEnqueueMemFillINTELCache,
             cl_ext::EnqueueMemFillName, &EnqueueMemFill));
 
     CL_RETURN_ON_FAILURE(
@@ -291,17 +292,17 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMFill(
   // target allocation.
   clHostMemAllocINTEL_fn HostMemAlloc = nullptr;
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clHostMemAllocINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clHostMemAllocINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clHostMemAllocINTELCache,
       cl_ext::HostMemAllocName, &HostMemAlloc));
 
   clEnqueueMemcpyINTEL_fn USMMemcpy = nullptr;
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clEnqueueMemcpyINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clEnqueueMemcpyINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clEnqueueMemcpyINTELCache,
       cl_ext::EnqueueMemcpyName, &USMMemcpy));
 
   clMemBlockingFreeINTEL_fn USMFree = nullptr;
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clMemBlockingFreeINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clMemBlockingFreeINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clMemBlockingFreeINTELCache,
       cl_ext::MemBlockingFreeName, &USMFree));
 
   cl_int ClErr = CL_SUCCESS;
@@ -361,17 +362,17 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMMemcpy(
 
   clGetMemAllocInfoINTEL_fn GetMemAllocInfo = nullptr;
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clGetMemAllocInfoINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clGetMemAllocInfoINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clGetMemAllocInfoINTELCache,
       cl_ext::GetMemAllocInfoName, &GetMemAllocInfo));
 
   clEnqueueMemcpyINTEL_fn USMMemcpy = nullptr;
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clEnqueueMemcpyINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clEnqueueMemcpyINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clEnqueueMemcpyINTELCache,
       cl_ext::EnqueueMemcpyName, &USMMemcpy));
 
   clMemBlockingFreeINTEL_fn USMFree = nullptr;
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clMemBlockingFreeINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clMemBlockingFreeINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clMemBlockingFreeINTELCache,
       cl_ext::MemBlockingFreeName, &USMFree));
 
   // Check if the two allocations are DEVICE allocations from different
@@ -409,7 +410,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMMemcpy(
     cl_event HostCopyEvent = nullptr, FinalCopyEvent = nullptr;
     clHostMemAllocINTEL_fn HostMemAlloc = nullptr;
     UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clHostMemAllocINTEL_fn>(
-        CLContext, cl_ext::ExtFuncPtrCache->clHostMemAllocINTELCache,
+        CLContext, ur::cl::getExtFnPtrCache().clHostMemAllocINTELCache,
         cl_ext::HostMemAllocName, &HostMemAlloc));
 
     auto HostAlloc = HostMemAlloc(CLContext, nullptr, size, 0, &CLErr);
@@ -588,7 +589,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMMemcpy2D(
 
   clEnqueueMemcpyINTEL_fn FuncPtr = nullptr;
   ur_result_t RetVal = cl_ext::getExtFuncFromContext<clEnqueueMemcpyINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clEnqueueMemcpyINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clEnqueueMemcpyINTELCache,
       cl_ext::EnqueueMemcpyName, &FuncPtr);
 
   if (!FuncPtr) {
@@ -651,7 +652,7 @@ urUSMGetMemAllocInfo(ur_context_handle_t hContext, const void *pMem,
   clGetMemAllocInfoINTEL_fn GetMemAllocInfo = nullptr;
   cl_context CLContext = cl_adapter::cast<cl_context>(hContext);
   UR_RETURN_ON_FAILURE(cl_ext::getExtFuncFromContext<clGetMemAllocInfoINTEL_fn>(
-      CLContext, cl_ext::ExtFuncPtrCache->clGetMemAllocInfoINTELCache,
+      CLContext, ur::cl::getExtFnPtrCache().clGetMemAllocInfoINTELCache,
       cl_ext::GetMemAllocInfoName, &GetMemAllocInfo));
 
   cl_mem_info_intel PropNameCL;

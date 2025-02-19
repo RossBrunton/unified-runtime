@@ -130,7 +130,7 @@ urContextRelease(ur_context_handle_t hContext) {
     // ExtFuncPtrCache is destroyed in an atexit() callback, so it doesn't
     // necessarily outlive the adapter (or all the contexts).
     if (refCount == 1 && cl_ext::ExtFuncPtrCache) {
-      cl_ext::ExtFuncPtrCache->clearCache(clContext);
+      ur::cl::getExtFnPtrCache().clearCache(clContext);
     }
   }
 

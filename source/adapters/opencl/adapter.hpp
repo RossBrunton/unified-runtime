@@ -9,14 +9,17 @@
 //===----------------------------------------------------------------------===//
 
 #include "CL/cl.h"
+#include "common.hpp"
 #include "logger/ur_logger.hpp"
 
 struct ur_adapter_handle_t_ {
   ur_adapter_handle_t_();
+  ~ur_adapter_handle_t_();
 
   std::atomic<uint32_t> RefCount = 0;
   std::mutex Mutex;
   logger::Logger &log = logger::get_logger("opencl");
+  cl_ext::ExtFuncPtrCacheT fnCache{};
 
   // Function pointers to core OpenCL entry points which may not exist in older
   // versions of the OpenCL-ICD-Loader are tracked here and initialized by
@@ -29,5 +32,8 @@ struct ur_adapter_handle_t_ {
 namespace ur {
 namespace cl {
 ur_adapter_handle_t getAdapter();
+inline cl_ext::ExtFuncPtrCacheT &getExtFnPtrCache() {
+  return getAdapter()->fnCache;
+}
 } // namespace cl
 } // namespace ur
